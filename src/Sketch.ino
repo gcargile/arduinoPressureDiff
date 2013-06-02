@@ -4,7 +4,9 @@
 #include "Well.h"
 
 #define TRANSDUCER_PIN A0
-#define MIN_CHANGE 20 // TODO: this needs tweeked.
+#define LED_PIN        13  // pin tied to onboard LED.
+
+#define MIN_CHANGE 1 // TODO: this needs tweeked.
 #define BAUD 115200
 #define DELAY_MS 500
 
@@ -46,28 +48,42 @@ void setup() {
   well.depth = WELL_DEPTH_INCHES;
   well.diameter = WELL_DIAMETER_INCHES;
   well.level = 0;
+
+  pinMode(LED_PIN, OUTPUT);
+
   Serial.begin(BAUD); // Open serial port
   Serial.println(getConfigurationMessage());
+  //  Serial.print("Empty:");
+  //  Serial.print(aToVolts(ANALOG_MIN));
+  //  Serial.print(" Mid:");
+  //  Serial.print(aToVolts(512));
+  //  Serial.print(" Ful:");
+  //  Serial.println(aToVolts(ANALOG_MAX));
+
 }
 
 void loop() {
   
-  int current_a_read = read_pressure_diff();
+  digitalWrite(LED_PIN, HIGH);
 
-  Serial.println(atoVolts(read_pressure_diff()));
+  int current_a_read = read_pressure_diff();
 
   if (isNewValue(current_a_read)) {
     last_a_read = current_a_read;
     //Serial.println("");
-    //Serial.print("current_a_read:");
-    //Serial.print(current_a_read);
+    Serial.print("current_a_read:");
+    Serial.print(current_a_read);
+    Serial.print(" ");
     //Serial.print("last_a_read:");
     //Serial.print(last_a_read);
   
     //Serial.print("Well at ");
     //Serial.print(percentage(normalize(current_a_read)));
     //Serial.println("%");
+    Serial.print(aToVolts(read_pressure_diff()));
+    Serial.println("v");
   }
+  digitalWrite(LED_PIN, LOW);
   spin(DELAY_MS);
 
   
