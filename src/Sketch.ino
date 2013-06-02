@@ -1,7 +1,10 @@
+#include "Fmap.h"
+#include "MPX5100.h"
 #include "String.h"
 #include "Analog.h"
 #include "Conversion.h"
 #include "Well.h"
+#include "Spin.h"
 
 #define TRANSDUCER_PIN A0
 #define LED_PIN        13  // pin tied to onboard LED.
@@ -71,33 +74,22 @@ void loop() {
   if (isNewValue(current_a_read)) {
     last_a_read = current_a_read;
     //Serial.println("");
-    Serial.print("current_a_read:");
-    Serial.print(current_a_read);
-    Serial.print(" ");
+    //Serial.print("current_a_read:");
+    //Serial.print(current_a_read);
+    //Serial.print(" ");
     //Serial.print("last_a_read:");
     //Serial.print(last_a_read);
   
     //Serial.print("Well at ");
     //Serial.print(percentage(normalize(current_a_read)));
     //Serial.println("%");
-    Serial.print(aToVolts(read_pressure_diff()));
+    Serial.print(aToVolts(read_pressure_diff(), VOUT_MIN, VOUT_MAX));
     Serial.println("v");
   }
   digitalWrite(LED_PIN, LOW);
   spin(DELAY_MS);
 
   
-}
-
-void spin(int howLong) {
-  char spins[] = { '-', '/', '.', '\\', '*',
-                   '_', '(', ',', ')', '+'};
-  int i;
-  for(i = 0; i < 10; i ++) {
-    Serial.print(spins[i]);
-    delay(howLong / 10);
-    Serial.print(char(8));
-  }
 }
 
 String getConfigurationMessage() {
