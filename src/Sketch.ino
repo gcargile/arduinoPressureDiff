@@ -1,3 +1,5 @@
+#include <LiquidCrystal.h>
+
 #include "Fmap.h"
 #include "Water.h"
 #include "String.h"
@@ -20,6 +22,8 @@ int last_a_read;
 int delta;
 
 Well well;
+
+LiquidCrystal lcd(12, 11, 10, 5, 4, 3, 2);
 
 int empty_value() {
   return ANALOG_MIN;
@@ -51,6 +55,9 @@ int isNewValue(int test) {
 
 void setup() {
 
+  lcd.begin(20, 4);
+  lcd.setCursor(0, 0);
+
   well.depth = WELL_DEPTH_INCHES;
   well.diameter = WELL_DIAMETER_INCHES;
   well.level = 0;
@@ -62,7 +69,6 @@ void setup() {
   Serial.begin(BAUD); // Open serial port
   Serial.println(getConfigurationMessage());
 
-
 }
 
 void loop() {
@@ -72,23 +78,32 @@ void loop() {
     last_a_read = current_a_read;
     
     well.level = (int)getDepthInches(last_a_read);
-
+    
+    String lcdString;
+    lcdString.concat(getWellGallons(well));
+    lcd.setCursor(0, 1);
+    
+    lcd.print(displayWell());
     Serial.print(displayWell());
     Serial.println("");
   }
 
-  spin(DELAY_MS);
+  spinLcd(lcd, DELAY_MS);
   
 }
 
 String displayWell() {
   String retval;
   
-  retval.concat(" Depth: ");
+  retval.concat("Depth: ");
   retval.concat(well.level);
-  retval.concat(" Gallons: ");
+  retval.concat(" Gals: ");
   retval.concat(getWellGallons(well));
   return retval;
+}
+
+float getSensorVolts(int aValue) {
+  return aToVolts(aValue, 0, VOUT_MAX - VOUT_MIN);
 }
 
 int getDepthInches(int analogRead) {
@@ -104,7 +119,7 @@ int getDepthInches(int analogRead) {
     Serial.print(" ");
   }
 
-  float volts = aToVolts(analogRead, 0, VOUT_MAX - VOUT_MIN);
+  float volts = getSensorVolts(analogRead);
   Serial.print(volts);
   Serial.print("v");
 
