@@ -1,13 +1,13 @@
 #include "Fmap.h"
-#include "MPX5100.h"
+#include "Water.h"
 #include "String.h"
 #include "Analog.h"
 #include "Conversion.h"
 #include "Well.h"
 #include "Spin.h"
+#include "MPX5100.h"
 
 #define TRANSDUCER_PIN A0
-#define LED_PIN        13  // pin tied to onboard LED.
 
 #define MIN_CHANGE 1 // TODO: this needs tweeked.
 #define BAUD 115200
@@ -17,6 +17,8 @@
 #define WELL_DEPTH_INCHES 120
 
 int last_a_read;
+int delta;
+
 Well well;
 
 int empty_value() {
@@ -48,48 +50,72 @@ int isNewValue(int test) {
 }
 
 void setup() {
+
   well.depth = WELL_DEPTH_INCHES;
   well.diameter = WELL_DIAMETER_INCHES;
   well.level = 0;
+  
+  delta = read_pressure_diff();
 
   pinMode(LED_PIN, OUTPUT);
 
   Serial.begin(BAUD); // Open serial port
   Serial.println(getConfigurationMessage());
-  //  Serial.print("Empty:");
-  //  Serial.print(aToVolts(ANALOG_MIN));
-  //  Serial.print(" Mid:");
-  //  Serial.print(aToVolts(512));
-  //  Serial.print(" Ful:");
-  //  Serial.println(aToVolts(ANALOG_MAX));
+
 
 }
 
 void loop() {
-  
-  digitalWrite(LED_PIN, HIGH);
 
   int current_a_read = read_pressure_diff();
-
   if (isNewValue(current_a_read)) {
     last_a_read = current_a_read;
-    //Serial.println("");
-    //Serial.print("current_a_read:");
-    //Serial.print(current_a_read);
-    //Serial.print(" ");
-    //Serial.print("last_a_read:");
-    //Serial.print(last_a_read);
-  
-    //Serial.print("Well at ");
-    //Serial.print(percentage(normalize(current_a_read)));
-    //Serial.println("%");
-    Serial.print(aToVolts(read_pressure_diff(), VOUT_MIN, VOUT_MAX));
-    Serial.println("v");
-  }
-  digitalWrite(LED_PIN, LOW);
-  spin(DELAY_MS);
+    
+    well.level = (int)getDepthInches(last_a_read);
 
+    Serial.print(displayWell());
+    Serial.println("");
+  }
+
+  spin(DELAY_MS);
   
+}
+
+String displayWell() {
+  String retval;
+  
+  retval.concat(" Depth: ");
+  retval.concat(well.level);
+  retval.concat(" Gallons: ");
+  retval.concat(getWellGallons(well));
+  return retval;
+}
+
+int getDepthInches(int analogRead) {
+  
+  Serial.print("RAW Analog value:");
+  Serial.print(analogRead);
+  Serial.print(" ");
+  
+  if (analogRead >= delta) {
+    analogRead = analogRead - delta;
+    Serial.print("Delta Analog value:");
+    Serial.print(analogRead);
+    Serial.print(" ");
+  }
+
+  float volts = aToVolts(analogRead, 0, VOUT_MAX - VOUT_MIN);
+  Serial.print(volts);
+  Serial.print("v");
+
+
+  float milliVolts = volts * 1000;
+  float psi = milliVolts / mV_per_PSI; 
+    
+  float depthFeet = psi / PSI_PER_FOOT_FRESH;
+  float depthInches = depthFeet / INCHES_PER_FOOT;
+
+  return depthInches;
 }
 
 String getConfigurationMessage() {
@@ -117,6 +143,17 @@ String getConfigurationMessage() {
   retval.concat("Gallons/Inch:");
   retval.concat(gallons(volume(1, WELL_DIAMETER_INCHES)));
   retval.concat(newLine());
+  retval.concat("Gallons/Foot:");
+  retval.concat(gallons(volume(12, WELL_DIAMETER_INCHES)));
+  retval.concat(newLine());
+  retval.concat("Test Foot:");
+  well.level = 12;
+  retval.concat(displayWell());
+  retval.concat(newLine());
+  retval.concat("Delta Read:");
+  retval.concat(delta);
+  retval.concat(newLine());
+
   retval.concat(fillLine('*'));
 
   return retval;

@@ -1,7 +1,7 @@
 #define INCHES_PER_FOOT 12
 
-int feetFromInches(int inches) {
-  return inches / INCHES_PER_FOOT;
+float feetFromInches(int inches) {
+  return (float)inches / (float)INCHES_PER_FOOT;
 }
 
 #define PI 3.14
@@ -9,10 +9,12 @@ int feetFromInches(int inches) {
 #define PSI_TO_KPI 6.894
 #define KPI_TO_PSI 0.145
 
+// Volume in Cubic inches
 long volume(int depth_in, int diameter_in) {
   return (depth_in * PI * pow((diameter_in / 2), 2));
 }
 
+// Galllons based on volume in Cubic inches
 int gallons(long volume) {
   return (volume / CI_IN_A_GALLON);
 }

@@ -1,6 +1,3 @@
-#define PSI_PER_FOOT_FRESH .43  
-#define PSI_PER_FOOT_SEA   .44
-
 /*
 SEE: http://www.geotechenv.com/Reference_Pages/water_measure_tables.pdf
 
