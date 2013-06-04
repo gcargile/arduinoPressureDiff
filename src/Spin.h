@@ -21,21 +21,46 @@ void spin(int howLong) {
   }
 }
 
-void spinLcd(LiquidCrystal lc, int howLong) {
+void spinLcdMsg(LiquidCrystal lc, int howLong, String msg) {
+
   char spins[] = { '-', '/', '.', '\\', '*',
                    '_', '(', ',', ')', '+'};
   int i;
   for(i = 0; i < 10; i ++) {
     lc.setCursor(0, 0);
 
-   if (i % 2 > 0)
+    if (i % 2 > 0) {
+      lc.print(spins[i]);
+      lc.print(msg);
       digitalWrite(LED_PIN, HIGH);
-    else
+    }
+    else {
       digitalWrite(LED_PIN, LOW);
+    }
 
-    lc.print(spins[i]);
     delay(howLong / 10);
-    lc.print(' ');
+
   }
 
+}
+
+static char spins[] = { '-', '/', '.', '\\', '*',
+			'_', '(', ',', ')', '+'};
+
+static int spinNum = 0;
+
+void spinner(LiquidCrystal lc, String msg) {
+  if (spinNum >= sizeof(spins))
+    spinNum = 0;
+
+  if (spinNum % 2 > 0)
+    digitalWrite(LED_PIN, HIGH);
+  else
+    digitalWrite(LED_PIN, LOW);
+
+  lc.setCursor(0, 0);
+
+  lc.print(spins[spinNum]);
+  lc.print(msg);
+  spinNum++;
 }

@@ -17,6 +17,7 @@ Well casing diameter (inches)	Water volume per foot of water depth (Gallons)*
 */
 
 typedef struct {
+  char *name;
   int depth;
   int diameter;
   int level;
