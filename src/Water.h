@@ -1,3 +1,5 @@
 #define PSI_PER_FOOT_FRESH .43  
 #define PSI_PER_FOOT_SEA   .44
 
+#define FOOT_PER_PSI_FRESH 2.31  
+#define FOOT_PER_PSI_SEA   2.31
