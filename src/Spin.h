@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #define LED_PIN        13  // pin tied to onboard LED.
 
 /*
