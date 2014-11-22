@@ -1,5 +1,6 @@
 #include <LiquidCrystal.h>
 #include <pt.h>
+#include <math.h>
 
 #include "Fmap.h"
 #include "Water.h"
@@ -16,9 +17,9 @@
 #define BAUD 115200
 #define DELAY_MS 500
 
-#define WELL_NAME "GoatWell"
-#define WELL_DIAMETER_INCHES 30
-#define WELL_DEPTH_INCHES 120
+#define WELL_NAME "CabinWell"
+#define WELL_DIAMETER_INCHES 8
+#define WELL_DEPTH_INCHES 459
 
 #define APP_NAME "APD v1.0"
 
